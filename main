@@ -1,0 +1,79 @@
+# %%
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn import tree
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix,ConfusionMatrixDisplay
+
+
+# %%
+df = pd.read_csv('C:\\Users\\ivana\\OneDrive\\Desktop\\Pyhton\\Día15\\DataSet_Titanic.csv')
+df.head()
+
+# %%
+# Vamos a separar el dataset
+
+# En la variable x guardamos los atributos predictores
+X = df.drop('Sobreviviente',axis=1) 
+
+# En la variable y guardamos la variable a predecir
+y = df.Sobreviviente
+
+# %%
+X.head()
+
+# %%
+y.head()
+
+# %%
+# Creamos nuestro árbol de decisiones
+arbol = DecisionTreeClassifier(max_depth=3, random_state=42)
+
+# %%
+# Entrenamos el modelo
+arbol.fit(X, y)
+
+# %%
+# Predecimos sobre nuestro set
+pred_y = arbol.predict(X)
+
+#Comparamos con las etiquetas reales
+print('Precision: ',accuracy_score(pred_y,y))
+
+# %%
+# Creamos una matriz de consusión entre los valores reales y los valores predichos por el modelo
+confusion_matrix(y,pred_y)
+
+# %%
+ConfusionMatrixDisplay.from_estimator(arbol, X, y, cmap=plt.cm.Blues, values_format='.2f', normalize='true')
+plt.show()
+
+# %%
+# Mostramos el arbol
+plt.figure(figsize=(10,8))
+tree.plot_tree(arbol, filled=True,feature_names=X.columns)
+plt.show
+
+# %%
+# Grafico con las importancias 
+# Creamos las variables x(importancias)e y (columnas)
+importancias = arbol.feature_importances_
+columnas = X.columns
+
+# Crear un DataFrame con las importancias y las columnas
+importances_df = pd.DataFrame({'Columnas': columnas, 'Importancias': importancias})
+importances_df = importances_df.sort_values(by='Importancias', ascending=False)  # Ordenar por importancia
+
+# Graficar la importancia de cada atributo usando seaborn
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Importancias', y='Columnas', data=importances_df, palette='viridis')
+plt.title('Importancia de cada atributo')
+plt.xlabel('Importancia')
+plt.ylabel('Atributos')
+plt.show()
+
+
+
